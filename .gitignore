@@ -1,0 +1,27 @@
+# Node / TypeScript
+node_modules
+dist
+dist-tests
+*.log
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# Coverage / reports
+coverage
+reports
+
+# Mac/Linux
+.DS_Store
+Thumbs.db
+
+# Husky
+.husky/_/*
+docs/*
