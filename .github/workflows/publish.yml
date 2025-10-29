@@ -1,0 +1,152 @@
+name: Publish to NPM
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      tag:
+        description: 'NPM tag (latest, beta, alpha)'
+        required: true
+        default: 'latest'
+        type: choice
+        options:
+          - latest
+          - beta
+          - alpha
+      create_release:
+        description: 'Create GitHub Release'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  publish:
+    name: Build, Test & Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
+
+      - name: Bump version
+        id: version
+        run: |
+          npm version ${{ inputs.version }} -m "chore(release): v%s [skip ci]"
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "### 📦 New Version: v$NEW_VERSION" >> $GITHUB_STEP_SUMMARY
+
+      - name: Push changes
+        run: |
+          git push origin main --follow-tags
+
+      - name: Publish to NPM
+        run: npm publish --tag ${{ inputs.tag }} --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Generate Release Notes
+        if: inputs.create_release == true
+        id: release_notes
+        run: |
+          VERSION="v${{ steps.version.outputs.new_version }}"
+          echo "Generating release notes for $VERSION"
+
+          # Get commits since last tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s (%h)" HEAD)
+          else
+            COMMITS=$(git log --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
+          fi
+
+          # Create release notes
+          cat > release_notes.md << EOF
+          ## 🚀 What's New in $VERSION
+
+          ### Changes
+          $COMMITS
+
+          ### 📦 Installation
+          \`\`\`bash
+          npm install wdio-ai-locator-service@$VERSION
+          \`\`\`
+
+          ### 📚 Documentation
+          - [README](https://github.com/jemishgopani/wdio-ai-locator-service#readme)
+          - [Dynamic Locators Guide](https://github.com/jemishgopani/wdio-ai-locator-service/blob/main/docs/DYNAMIC_LOCATORS.md)
+          - [Quick Reference](https://github.com/jemishgopani/wdio-ai-locator-service/blob/main/docs/QUICK_REFERENCE.md)
+
+          ### 🔗 Links
+          - [NPM Package](https://www.npmjs.com/package/wdio-ai-locator-service)
+          - [Changelog](https://github.com/jemishgopani/wdio-ai-locator-service/releases)
+          EOF
+
+          echo "Release notes generated"
+
+      - name: Create GitHub Release
+        if: inputs.create_release == true
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.new_version }}
+          name: Release v${{ steps.version.outputs.new_version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ inputs.tag != 'latest' }}
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post-publish Summary
+        run: |
+          echo "## ✅ Publish Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** v${{ steps.version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag:** ${{ inputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **NPM:** https://www.npmjs.com/package/wdio-ai-locator-service" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.create_release }}" == "true" ]; then
+            echo "- **Release:** https://github.com/jemishgopani/wdio-ai-locator-service/releases/tag/v${{ steps.version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "## ❌ Publish Failed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please check the workflow logs for details." >> $GITHUB_STEP_SUMMARY

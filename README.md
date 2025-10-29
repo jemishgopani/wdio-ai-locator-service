@@ -6,12 +6,11 @@
 
 [![npm version](https://img.shields.io/npm/v/wdio-ai-locator-service.svg?style=flat-square&logo=npm&logoColor=white)](https://www.npmjs.com/package/wdio-ai-locator-service)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square&logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/MIT)
+[![CI](https://img.shields.io/github/actions/workflow/status/jemishgopani/wdio-ai-locator-service/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/jemishgopani/wdio-ai-locator-service/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6.svg?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![WebdriverIO](https://img.shields.io/badge/WebdriverIO-9.x-ea5906.svg?style=flat-square&logo=webdriverio&logoColor=white)](https://webdriver.io/)
 [![Tests](https://img.shields.io/badge/Tests-Vitest-6E9F18.svg?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Test Coverage](https://img.shields.io/badge/Coverage-85%2B-brightgreen.svg?style=flat-square&logo=codecov&logoColor=white)](#-testing)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF.svg?style=flat-square&logo=githubactions&logoColor=white)](#-testing)
-[![Code Quality](https://img.shields.io/badge/Code%20Quality-ESLint%20%2B%20Prettier-4B32C3.svg?style=flat-square&logo=eslint&logoColor=white)](#-contributing)
 
 **Stop writing brittle CSS/XPath selectors. Let AI find your elements using natural language.**
 
@@ -53,6 +52,9 @@
 - [🧪 Testing](#-testing)
 - [📚 Documentation](#-documentation)
 - [🤝 Contributing](#-contributing)
+  - [Development Workflow](#development-workflow)
+  - [GitHub Actions](#github-actions)
+- [📦 Publishing](#-publishing)
 - [📄 License](#-license)
 
 ---
@@ -1018,6 +1020,75 @@ Contributions are welcome! Please follow these steps:
 3. Commit your changes: `git commit -m 'Add amazing feature'`
 4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
+
+### Development Workflow
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Build the project
+npm run build
+```
+
+### GitHub Actions
+
+This project uses GitHub Actions for CI/CD:
+
+- **CI Workflow** - Runs automatically on every PR and push
+  - Tests on Node.js 16, 18, and 20
+  - Runs test suite
+  - Generates coverage reports
+  - Can be triggered manually
+
+- **Publish Workflow** - Manual trigger only
+  - Bumps version (patch/minor/major)
+  - Runs tests and builds
+  - Publishes to NPM
+  - Creates GitHub release with release notes
+  - Supports NPM tags (latest, beta, alpha)
+
+---
+
+## 📦 Publishing
+
+This package is published to NPM automatically using GitHub Actions.
+
+### For Maintainers
+
+To publish a new version:
+
+1. Go to **Actions** tab in GitHub
+2. Select **Publish to NPM** workflow
+3. Click **Run workflow**
+4. Choose:
+   - **Version bump**: patch (1.0.X), minor (1.X.0), or major (X.0.0)
+   - **NPM tag**: latest, beta, or alpha
+   - **Create release**: Yes/No
+5. Click **Run workflow**
+
+The workflow will:
+- ✅ Run all tests
+- ✅ Build the project
+- ✅ Bump version in package.json
+- ✅ Publish to NPM
+- ✅ Create GitHub release (optional)
+- ✅ Generate release notes
+
+### Setup Required
+
+Add these secrets to your GitHub repository:
+
+- `NPM_TOKEN` - Your NPM access token ([Create one here](https://www.npmjs.com/settings/~/tokens))
 
 ---
 
