@@ -63,11 +63,11 @@ Traditional element selectors are fragile and hard to maintain. AI Locator Servi
 
 ```typescript
 // ❌ Old way: Brittle selectors
-await browser.$('#root > div.container > div:nth-child(2) > button.primary').click();
+await $('#root > div.container > div:nth-child(2) > button.primary').click();
 
 // ✅ New way: Natural language
 const locator = await browser.aiLocator('login button');
-await browser.$(locator).click();
+await $(locator).click();
 ```
 
 ### Key Benefits
@@ -149,17 +149,17 @@ describe('Login Flow', () => {
 
     // Find elements using natural language
     const emailInput = await browser.aiLocator('email input field');
-    await browser.$(emailInput).setValue('user@example.com');
+    await $(emailInput).setValue('user@example.com');
 
     const passwordInput = await browser.aiLocator('password field');
-    await browser.$(passwordInput).setValue('secret123');
+    await $(passwordInput).setValue('secret123');
 
     const loginButton = await browser.aiLocator('login button');
-    await browser.$(loginButton).click();
+    await $(loginButton).click();
 
     // Verify login success
     const welcomeMsg = await browser.aiLocator('welcome message');
-    await expect(browser.$(welcomeMsg)).toBeDisplayed();
+    await expect($(welcomeMsg)).toBeDisplayed();
   });
 });
 ```
@@ -185,13 +185,13 @@ Write **reusable locators** with template variables for data-driven testing.
 const locator = await browser.aiLocator('Edit button for {userName}', {
   variables: { userName: 'Alice' }
 });
-await browser.$(locator).click();
+await $(locator).click();
 
 // Reuse with different value
 const locator2 = await browser.aiLocator('Edit button for {userName}', {
   variables: { userName: 'Bob' }
 });
-await browser.$(locator2).click();
+await $(locator2).click();
 ```
 
 ### Data-Driven Testing (Template Caching)
@@ -206,7 +206,7 @@ for (const userName of users) {
     variables: { userName },
     cacheBy: 'template' // 🔥 Only 1 AI call for all 5 users!
   });
-  await browser.$(locator).click();
+  await $(locator).click();
 }
 
 // Result:
@@ -241,10 +241,10 @@ describe('User Management', () => {
   it('should manage profile', async () => {
     // No need to pass variables repeatedly!
     const profileLoc = await browser.aiLocator('Profile for {userName}');
-    await browser.$(profileLoc).click();
+    await $(profileLoc).click();
 
     const dashboardLoc = await browser.aiLocator('Dashboard for {role}');
-    await browser.$(dashboardLoc).waitForDisplayed();
+    await $(dashboardLoc).waitForDisplayed();
   });
 });
 ```
@@ -258,7 +258,7 @@ const productLoc = await browser.aiLocator('Product {name} in {category}', {
     category: 'Electronics'
   }
 });
-await browser.$(productLoc).click();
+await $(productLoc).click();
 ```
 
 📚 **[Full Dynamic Locators Guide →](docs/DYNAMIC_LOCATORS.md)**
@@ -479,7 +479,7 @@ browser.aiLocator(
 
 ```typescript
 const locator = await browser.aiLocator('submit button');
-await browser.$(locator).click();
+await $(locator).click();
 ```
 
 ### Global Context Management
@@ -518,7 +518,7 @@ Execute function with scoped context (auto-cleanup).
 ```typescript
 await browser.withAiContext({ role: 'admin' }, async () => {
   const adminPanelLoc = await browser.aiLocator('Admin panel for {role}');
-  await browser.$(adminPanelLoc).click();
+  await $(adminPanelLoc).click();
   // Context auto-cleared here
 });
 ```
@@ -532,16 +532,16 @@ await browser.withAiContext({ role: 'admin' }, async () => {
 ```typescript
 it('should search and filter products', async () => {
   const searchInput = await browser.aiLocator('product search input');
-  await browser.$(searchInput).setValue('laptop');
+  await $(searchInput).setValue('laptop');
 
   const searchBtn = await browser.aiLocator('search button');
-  await browser.$(searchBtn).click();
+  await $(searchBtn).click();
 
   const categoryFilter = await browser.aiLocator('electronics category filter');
-  await browser.$(categoryFilter).click();
+  await $(categoryFilter).click();
 
   const firstProduct = await browser.aiLocator('first product in results');
-  await browser.$(firstProduct).click();
+  await $(firstProduct).click();
 });
 ```
 
@@ -560,17 +560,17 @@ testData.forEach((user) => {
     const nameInput = await browser.aiLocator('name input', {
       cacheBy: 'template'
     });
-    await browser.$(nameInput).setValue(user.name);
+    await $(nameInput).setValue(user.name);
 
     const emailInput = await browser.aiLocator('email input', {
       cacheBy: 'template'
     });
-    await browser.$(emailInput).setValue(user.email);
+    await $(emailInput).setValue(user.email);
 
     const roleSelect = await browser.aiLocator('role dropdown', {
       cacheBy: 'template'
     });
-    await browser.$(roleSelect).selectByVisibleText(user.role);
+    await $(roleSelect).selectByVisibleText(user.role);
   });
 });
 ```
@@ -585,13 +585,13 @@ class LoginPage {
     await this.browser.setAiContext({ email, password });
 
     const emailInput = await this.browser.aiLocator('email input field');
-    await this.browser.$(emailInput).setValue(email);
+    await $(emailInput).setValue(email);
 
     const pwdInput = await this.browser.aiLocator('password field');
-    await this.browser.$(pwdInput).setValue(password);
+    await $(pwdInput).setValue(password);
 
     const loginBtn = await this.browser.aiLocator('login button');
-    await this.browser.$(loginBtn).click();
+    await $(loginBtn).click();
 
     await this.browser.clearAiContext();
   }
@@ -600,7 +600,7 @@ class LoginPage {
     const welcome = await this.browser.aiLocator('welcome message showing {userName}', {
       variables: { userName }
     });
-    await expect(this.browser.$(welcome)).toBeDisplayed();
+    await expect($(welcome)).toBeDisplayed();
   }
 }
 
@@ -617,32 +617,32 @@ describe('E-Commerce Checkout', () => {
   it('should complete purchase flow', async () => {
     // Search and select product
     const searchBox = await browser.aiLocator('product search box');
-    await browser.$(searchBox).setValue('running shoes');
+    await $(searchBox).setValue('running shoes');
 
     const searchBtn = await browser.aiLocator('search button');
-    await browser.$(searchBtn).click();
+    await $(searchBtn).click();
 
     // Filter by price
     const priceFilter = await browser.aiLocator('price range filter under $100');
-    await browser.$(priceFilter).click();
+    await $(priceFilter).click();
 
     // Select product
     const product = await browser.aiLocator('first product with 4+ star rating');
-    await browser.$(product).click();
+    await $(product).click();
 
     // Add to cart
     const sizeSelect = await browser.aiLocator('size dropdown');
-    await browser.$(sizeSelect).selectByVisibleText('US 10');
+    await $(sizeSelect).selectByVisibleText('US 10');
 
     const addToCart = await browser.aiLocator('add to cart button');
-    await browser.$(addToCart).click();
+    await $(addToCart).click();
 
     // Checkout
     const cartIcon = await browser.aiLocator('shopping cart icon');
-    await browser.$(cartIcon).click();
+    await $(cartIcon).click();
 
     const checkoutBtn = await browser.aiLocator('proceed to checkout button');
-    await browser.$(checkoutBtn).click();
+    await $(checkoutBtn).click();
   });
 });
 ```
