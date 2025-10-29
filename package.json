@@ -1,6 +1,6 @@
 {
   "name": "wdio-ai-locator-service",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "AI-powered element location for WebdriverIO using natural language. Supports OpenAI, OpenAI Router, and Ollama with smart caching and self-healing locators.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
